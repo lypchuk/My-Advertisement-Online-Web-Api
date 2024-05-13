@@ -27,19 +27,67 @@ namespace MyAdvertisementOnlineApi.Controllers
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
+            var entity = context.Advertisements.Find(id);
+
+            if (entity == null)
+            {
+                return NotFound();
+            }
+
+            //return Ok(entity);
+
             return Ok(context.Advertisements.Where(x=> x.ID == id).Include(x => x.Category).Include(x => x.Status).Include(x => x.State).ToList());
         }
 
 
         [HttpPost]
-        public IActionResult Create(Advertisement item)
+        public IActionResult Create(Advertisement model)
         {
             if(!ModelState.IsValid) 
+            {
+                return BadRequest();
+            }
+
+            context.Advertisements.Add(model);
+            context.SaveChanges();
+
+
+            return Ok();
+        }
+
+        [HttpPut]
+        public IActionResult Edit(Advertisement model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var entity = context.Advertisements.AsNoTracking().FirstOrDefault(x => x.ID == model.ID);
+
+            if (entity == null)
             {
                 return NotFound();
             }
 
-            context.Advertisements.Add(item);
+            context.Advertisements.Update(model);
+            context.SaveChanges();
+
+
+            return Ok();
+        }
+
+        [HttpDelete]
+        public IActionResult Delete(int id)
+        {
+            var entity = context.Advertisements.Find(id);
+
+            if (entity == null)
+            {
+                return NotFound();
+            }
+
+            context.Advertisements.Remove(entity);
             context.SaveChanges();
 
 
